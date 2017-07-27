@@ -44,23 +44,20 @@ function transactionQuery(query, callback) {
 
         transaction.begin(err => {
             if (err) {
-                callback(`Error in Transaction begin: ${err}`);
-                return;
+                return callback(`Error in Transaction begin: ${err}`);
             }
 
             var sqlRequest = new sql.Request(transaction);
             sqlRequest.query(query, (err, result) => {
                 if (err) {
-                    callback(`Error in SQL query: ${err}`);
-                    return;
+                    return callback(`Error in SQL query: ${err}`);
                 }
 
                 transaction.commit(err => {
                     if (err) {
-                        callback(`Error in Transaction commit: ${err}`);
-                        return;
+                        return callback(`Error in Transaction commit: ${err}`);
                     }
-                    console.log('Transaction committed.');
+
                     callback(null, result);
                 });
             });
