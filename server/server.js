@@ -9,12 +9,22 @@ app.use(bodyParser.json());
 
 app.post('/todos', (req, res) => {
     var query = `INSERT INTO dbo.todos(text) VALUES('${req.body.text}');`;
+    transactionQuery(query, (err, result) => {
+        if (err) {
+            return res.status(400).send(err);
+        }
+        res.send(result);
+    });
+});
+
+app.get('/todos', (req, res) => {
+    var query = `SELECT * FROM dbo.todos;`;
     executeQuery(query, (err, result) => {
         if (err) {
-            res.status(400).send(err);
-        } else {
-            res.send(result);
+            return res.status(400).send(err);
         }
+        var todos = result.recordset;
+        res.send({ todos });
     });
 });
 
