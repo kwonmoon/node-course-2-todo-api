@@ -33,6 +33,7 @@ app.get('/todos/:id', (req, res) => {
     if (!/^\d+$/.test(req.params.id)) {
         return res.status(404).send();
     }
+
     var id = parseInt(req.params.id);
     var query = `SELECT * FROM dbo.todos WHERE id = ${id}`;
     executeQuery(query, (err, result) => {
@@ -40,13 +41,13 @@ app.get('/todos/:id', (req, res) => {
             return res.status(400).send(err);
         }
 
-        var todos = result.recordset;
+        var todo = result.recordset;
 
-        if (todos.length === 0) {
+        if (todo.length === 0) {
             return res.status(400).send();
         }
 
-        res.send({ todos });
+        res.send({ todo: todo });
     });
 });
 

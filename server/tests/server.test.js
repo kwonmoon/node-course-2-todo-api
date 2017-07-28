@@ -86,3 +86,35 @@ describe('GET /todos', () => {
             });
     });
 });
+
+describe('GET /todos/:id', () => {
+    it('should return todo list', (done) => {
+        request(app)
+            .get('/todos/1')
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todos.text).toBe(todos[0].text);
+            })
+            .end(() => {
+                done();
+            });
+    });
+
+    it('should return 404 if todo not found', (done) => {
+        request(app)
+            .get('/todos/45')
+            .expect(404)
+            .end(() => {
+                done();
+            });
+    });
+
+    it('should return 404 for non numeric ids', (done) => {
+        request(app)
+            .get('/todos/65ab3')
+            .expect(404)
+            .end(() => {
+                done();
+            });
+    });
+});
