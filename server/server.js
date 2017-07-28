@@ -28,6 +28,28 @@ app.get('/todos', (req, res) => {
     });
 });
 
+app.get('/todos/:id', (req, res) => {
+    // check if params id contains only numbers
+    if (!/^\d+$/.test(req.params.id)) {
+        return res.status(404).send();
+    }
+    var id = parseInt(req.params.id);
+    var query = `SELECT * FROM dbo.todos WHERE id = ${id}`;
+    executeQuery(query, (err, result) => {
+        if (err) {
+            return res.status(400).send(err);
+        }
+
+        var todos = result.recordset;
+
+        if (todos.length === 0) {
+            return res.status(400).send();
+        }
+
+        res.send({ todos });
+    });
+});
+
 app.listen(3000, () => {
     console.log('Started on port 3000');
 });
