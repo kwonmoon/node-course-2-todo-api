@@ -46,10 +46,36 @@ app.get('/todos/:id', (req, res) => {
         var todo = result.recordset;
 
         if (todo.length === 0) {
-            return res.status(400).send();
+            return res.status(404).send();
         }
 
         res.send({ todo: todo });
+    });
+});
+
+app.delete('/todos/:id', (req, res) => {
+    // check if params id contains only numbers
+    if (!/^\d+$/.test(req.params.id)) {
+        return res.status(404).send();
+    }
+
+    var id = parseInt(req.params.id);
+    var query = `DELETE FROM dbo.todos WHERE id = ${id}`;
+    executeQuery(query, (err, result) => {
+        if (err) {
+            console.log('err:', err);
+            return res.status(400).send(err);
+        }
+
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).send({
+                message: `Not delete - ID ${id} doesn't exist`
+            });
+        }
+
+        res.status(200).send({
+            message: `ID ${id} deleted`
+        });
     });
 });
 
