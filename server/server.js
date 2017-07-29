@@ -1,5 +1,6 @@
-var express = require('express');
-var bodyParser = require('body-parser');
+const _ = require('lodash');
+const express = require('express');
+const bodyParser = require('body-parser');
 
 var { executeQuery } = require('./db/mssql');
 var { transactionQuery } = require('./db/mssql');
@@ -61,7 +62,7 @@ app.delete('/todos/:id', (req, res) => {
 
     var id = parseInt(req.params.id);
     var query = `DELETE FROM dbo.todos WHERE id = ${id}`;
-    executeQuery(query, (err, result) => {
+    transactionQuery(query, (err, result) => {
         if (err) {
             console.log('err:', err);
             return res.status(400).send(err);
@@ -75,6 +76,38 @@ app.delete('/todos/:id', (req, res) => {
 
         res.status(200).send({
             message: `ID ${id} deleted`
+        });
+    });
+});
+
+app.patch('/todos/:id', (req, res) => {
+    // check if params id contains only numbers
+    if (!/^\d+$/.test(req.params.id)) {
+        return res.status(404).send();
+    }
+
+    var id = parseInt(req.params.id);
+    var body = _.pick(req.body, ['text', 'completed']);
+
+    var query = `UPDATE dbo.todos
+                    SET text = '${body.text}'
+                      , completed = '${body.completed}'
+                  WHERE id = ${id};`
+
+    transactionQuery(query, (err, result) => {
+        if (err) {
+            console.log('err:', err);
+            return res.status(400).send(err);
+        }
+
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).send({
+                message: `Not updated - ID ${id} doesn't exist`
+            });
+        }
+
+        res.status(200).send({
+            message: `ID ${id} updated`
         });
     });
 });
